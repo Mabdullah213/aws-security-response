@@ -1,0 +1,5 @@
+[{
+    "Source": "com.my-test-source",
+    "DetailType": "GuardDuty Finding",
+    "Detail": "{\"type\":\"Recon:EC2/Portscan\",\"service\":{\"action\":{\"networkConnectionAction\":{\"remoteIpDetails\":{\"ipAddressV4\":\"192.0.2.1\"}}}}}"
+}]

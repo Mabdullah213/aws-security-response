@@ -1,0 +1,11 @@
+# Local Terraform state, plugins, and logs
+.terraform/
+.terraform.lock.hcl
+*.tfstate
+*.tfstate.*
+crash.log
+*.tfvars
+*.tfplan
+
+# Lambda build artifacts
+lambda_function_payload.zip

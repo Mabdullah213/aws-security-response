@@ -20,42 +20,26 @@ This project deploys a professional-grade, event-driven security workflow on AWS
 
 ## Architecture
 
-1.  **Detection**: **AWS GuardDuty** detects a `Recon:EC2/Portscan` finding against a monitored EC2 instance.
-2.  **Alerting**: An **Amazon EventBridge** rule, listening for that specific finding, is triggered.
-3.  **Invocation**: EventBridge invokes the `security-block-malicious-ip` **AWS Lambda** function. Failed invocations are sent to an SQS Dead-Letter Queue.
-4.  **Response**: The Lambda function extracts the attacker's IP address from the event and adds it to the `security-malicious-ips` IP Set within **AWS WAF**, blocking it at the network edge.
+```mermaid
+graph TD;
+    subgraph "Detection & Alerting"
+        GuardDuty["AWS GuardDuty"];
+        EventBridge["Amazon EventBridge Rule"];
+    end
 
-***
+    subgraph "Invocation & Response"
+        Lambda["fa:fa-bolt AWS Lambda<br/>security-block-malicious-ip"];
+        WAF["fa:fa-shield-alt AWS WAF<br/>security-malicious-ips"];
+        DLQ["fa:fa-bug SQS Dead-Letter Queue"];
+    end
 
-## Technology Stack
+    GuardDuty -- "Generates 'Recon:EC2/Portscan' Finding" --> EventBridge;
+    EventBridge -- "Invokes Function" --> Lambda;
+    Lambda -- "Blocks Malicious IP" --> WAF;
+    Lambda -.->|On Failure| DLQ;
 
-* **Infrastructure as Code**: Terraform
-* **Cloud Provider**: AWS
-* **Security Services**: AWS GuardDuty, AWS WAF, AWS IAM
-* **Compute**: AWS Lambda
-* **Event-Driven Architecture**: Amazon EventBridge
-* **Resilience**: Amazon SQS
-
-***
-
-## Deployment
-
-**Prerequisites:**
-
-1.  Create a dedicated S3 bucket and a DynamoDB table for the Terraform remote backend.
-2.  Update the `main.tf` file's `backend "s3"` block with your bucket and table names.
-
-**Steps:**
-
-1.  **Initialize Terraform:**
-    ```bash
-    terraform init
-    ```
-2.  **Plan Deployment:**
-    ```bash
-    terraform plan
-    ```
-3.  **Apply Changes:**
-    ```bash
-    terraform apply
-    ```
+    style Lambda fill:#FF9900,stroke:#333,stroke-width:2px;
+    style WAF fill:#232F3E,stroke:#FF9900,stroke-width:2px,color:#fff;
+    style GuardDuty fill:#232F3E,stroke:#FF9900,stroke-width:2px,color:#fff;
+    style EventBridge fill:#232F3E,stroke:#FF9900,stroke-width:2px,color:#fff;
+    style DLQ fill:#B30000,stroke:#333,stroke-width:2px,color:#fff;
